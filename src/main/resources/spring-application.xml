@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	<!-- <context:component-scan base-package="com.qphone.dao"></context:component-scan> -->
+
+	<context:component-scan base-package="com.qphone.service"></context:component-scan>
+
+
+
+	<!-- 引入外部文件 -->
+	<context:property-placeholder location="classpath:sql.properties" />
+	<!-- 配置数据源 -->
+	<bean id="ds" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${driver}"></property>
+		<property name="url" value="${url}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${pass}"></property>
+	</bean>
+	<!-- mybatis整合 -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis.xml"></property>
+		<property name="mapperLocations" value="classpath:com/qphone/mapper/*.xml"></property>
+		<property name="dataSource" ref="ds"></property>
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageInterceptor">
+					<property name="properties">
+
+						<value>
+							pageSizeZero=true
+							reasonable=true
+						</value>
+					</property>
+
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<!-- 所有接口的代理 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.qphone.dao"></property>
+	</bean>
+	<!-- 事物 -->
+	<tx:annotation-driven />
+	<bean
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="ds"></constructor-arg>
+	</bean>
+
+
+
+</beans>
